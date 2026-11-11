@@ -19,7 +19,7 @@ MORPHE_VERSION=2.1.1
 MORPHE_SHA256=3a2efefd567b44dde15971a58d5aa649a32aba30781d3400dc08d688c720168f
 TRAWL_IMAGE=ghcr.io/germondai/trawl:1.11.0@sha256:ef732d2c62724fe4ed110316559340d3adc1edfaae697e173c18a1251613a781
 FLARESOLVERR_IMAGE=ghcr.io/flaresolverr/flaresolverr@sha256:c80ae007ce2ccdcd217a12426e4f039ef763ff90738c808d38810c3e59323767
-BACKEND=${BACKEND:-trawl}   # trawl | flaresolverr
+BACKEND=${BACKEND:-flaresolverr}   # flaresolverr | trawl
 export TRAWL_URL=${TRAWL_URL:-http://127.0.0.1:8191}
 if [ "$BACKEND" = flaresolverr ]; then export FLARESOLVERR_URL=http://127.0.0.1:8191; HEALTH=$FLARESOLVERR_URL/; IMAGE=$FLARESOLVERR_IMAGE
 else HEALTH=$TRAWL_URL/health; IMAGE=$TRAWL_IMAGE; fi
