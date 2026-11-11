@@ -11,13 +11,18 @@ HERE=$(cd "$(dirname "$0")/.." && pwd)
 WORK=${WORK:-$HERE/work}
 RESULTS=${RESULTS:-$HERE/results}
 HOST_LABEL=${HOST_LABEL:-$(hostname -s)}
+export BACKEND
 SOURCES=${SOURCES:-"apkpure apkmirror"}
 ONLY=${ONLY:-}
 ARCH=arm64-v8a
 MORPHE_VERSION=2.1.1
 MORPHE_SHA256=3a2efefd567b44dde15971a58d5aa649a32aba30781d3400dc08d688c720168f
 TRAWL_IMAGE=ghcr.io/germondai/trawl:1.11.0@sha256:ef732d2c62724fe4ed110316559340d3adc1edfaae697e173c18a1251613a781
+FLARESOLVERR_IMAGE=ghcr.io/flaresolverr/flaresolverr@sha256:c80ae007ce2ccdcd217a12426e4f039ef763ff90738c808d38810c3e59323767
+BACKEND=${BACKEND:-trawl}   # trawl | flaresolverr
 export TRAWL_URL=${TRAWL_URL:-http://127.0.0.1:8191}
+if [ "$BACKEND" = flaresolverr ]; then export FLARESOLVERR_URL=http://127.0.0.1:8191; HEALTH=$FLARESOLVERR_URL/; IMAGE=$FLARESOLVERR_IMAGE
+else HEALTH=$TRAWL_URL/health; IMAGE=$TRAWL_IMAGE; fi
 UA='Mozilla/5.0 (X11; Linux x86_64; rv:140.0) Gecko/20100101 Firefox/140.0'
 
 RUN_ID=$(date -u +%Y%m%dT%H%M%SZ)-$HOST_LABEL
@@ -38,18 +43,18 @@ morphe_s=$(since "$t")
 
 trawl_started=false
 trawl_s=0
-if [[ " $SOURCES " == *" apkmirror "* ]] && ! curl -sf "$TRAWL_URL/health" >/dev/null; then
+if [[ " $SOURCES " == *" apkmirror "* ]] && ! curl -sf "$HEALTH" >/dev/null; then
   t=$(now)
   docker rm -f bakeoff-trawl >/dev/null 2>&1
   docker run -d --name bakeoff-trawl -p 127.0.0.1:8191:8191 --shm-size=1gb \
-    -e SESSION_CACHE_DRIVER=memory -e BROWSER_POOL_SIZE=1 "$TRAWL_IMAGE" >/dev/null
-  for _ in $(seq 180); do curl -sf "$TRAWL_URL/health" >/dev/null && break; sleep 1; done
+    -e SESSION_CACHE_DRIVER=memory -e BROWSER_POOL_SIZE=1 "$IMAGE" >/dev/null
+  for _ in $(seq 180); do curl -sf "$HEALTH" >/dev/null && break; sleep 1; done
   trawl_s=$(since "$t")
   trawl_started=true
 fi
 emit --arg run "$RUN_ID" --arg host "$HOST_LABEL" --argjson morphe "$morphe_s" --argjson trawl "$trawl_s" \
   --arg java "$(java -version 2>&1 | head -1)" --arg apkeep "$(apkeep --version 2>&1)" \
-  '{type:"setup", run:$run, host:$host, morphe_jar_seconds:$morphe, trawl_start_seconds:$trawl, java:$java, apkeep:$apkeep}'
+  '{type:"setup", run:$run, host:$host, backend:env.BACKEND, morphe_jar_seconds:$morphe, trawl_start_seconds:$trawl, java:$java, apkeep:$apkeep}'
 
 # ---- per app --------------------------------------------------------------------
 jq -c '.[]' "$HERE/apps.json" | while read -r app; do

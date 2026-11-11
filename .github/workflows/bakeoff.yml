@@ -11,6 +11,10 @@ on:
         description: "Sources to try"
         required: false
         default: "apkpure apkmirror"
+      backend:
+        description: "APKMirror backend: trawl or flaresolverr"
+        required: false
+        default: "flaresolverr"
   schedule:
     # Once a day; disable the workflow after three runs.
     - cron: "17 9 * * *"
@@ -56,4 +60,5 @@ jobs:
           ONLY: ${{ inputs.only }}
           SOURCES: ${{ inputs.sources || 'apkpure apkmirror' }}
           HOST_LABEL: gha
+          BACKEND: ${{ inputs.backend || 'flaresolverr' }}
         run: ./scripts/run.sh

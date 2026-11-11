@@ -29,9 +29,39 @@ def fail(msg):
     sys.exit(1)
 
 
+FLARESOLVERR = os.environ.get("FLARESOLVERR_URL")
+
+
+def page_flaresolverr(url):
+    """Same contract as page(), through FlareSolverr's /v1 API."""
+    body = json.dumps({"cmd": "request.get", "url": url, "maxTimeout": 60000}).encode()
+    req = urllib.request.Request(FLARESOLVERR + "/v1", data=body, headers={"Content-Type": "application/json"})
+    try:
+        with urllib.request.urlopen(req, timeout=120) as r:
+            d = json.load(r)
+    except urllib.error.HTTPError as e:
+        d = json.loads(e.read() or b"{}")
+    except Exception as e:
+        d = {"message": repr(e)[:300]}
+    s = d.get("solution") or {}
+    return {"statusCode": s.get("status"), "html": s.get("response"), "cookies": s.get("cookies", []),
+            "userAgent": s.get("userAgent"), "url": s.get("url"), "tier": "fs",
+            **({"error": d.get("message")} if d.get("status") != "ok" else {})}
+
+
 def page(url):
-    """Fetch a page through trawl. Returns (status, html, trawl response)."""
+    """Fetch a page through trawl or FlareSolverr. Returns (status, html, response)."""
     time.sleep(PAUSE if log["pages"] else 0)
+    if FLARESOLVERR:
+        t = time.time()
+        d = page_flaresolverr(url)
+        log["pages"] += 1
+        log["tiers"].append("fs")
+        entry = {"url": url.replace(BASE, ""), "status": d.get("statusCode"), "tier": "fs", "s": round(time.time() - t, 1)}
+        if d.get("statusCode") != 200:
+            entry["detail"] = d.get("error")
+        log.setdefault("trace", []).append(entry)
+        return d.get("statusCode"), d.get("html") or "", d
     body = json.dumps({"url": url, "solveEmbeddedCaptchas": False}).encode()
     req = urllib.request.Request(TRAWL + "/scrape", data=body, headers={"Content-Type": "application/json"})
     t = time.time()
