@@ -1,0 +1,38 @@
+name: probe
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    services:
+      flaresolverr:
+        image: ghcr.io/flaresolverr/flaresolverr@sha256:c80ae007ce2ccdcd217a12426e4f039ef763ff90738c808d38810c3e59323767 # v3.5.2
+        ports: ["8191:8191"]
+      trawl:
+        image: ghcr.io/germondai/trawl@sha256:ef732d2c62724fe4ed110316559340d3adc1edfaae697e173c18a1251613a781 # 1.11.0
+        ports: ["8192:8191"]
+        env:
+          SESSION_CACHE_DRIVER: memory
+        options: --shm-size=1gb
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-java@77dd5b2ce225ea11469928ac317850245a74ae78 # v6.2.0
+        with:
+          distribution: temurin
+          java-version: "21"
+      - name: Probe
+        env:
+          FLARESOLVERR_URL: http://127.0.0.1:8191
+          TRAWL_URL: http://127.0.0.1:8192
+        run: |
+          export PATH="$(ls -d "$ANDROID_HOME"/build-tools/* | sort -V | tail -1):$PATH"
+          for u in http://127.0.0.1:8191/ http://127.0.0.1:8192/health; do for _ in $(seq 120); do curl -sf -o /dev/null "$u" -m 2 && break; sleep 1; done; done
+          ./scripts/probe.sh | tee -a "$GITHUB_STEP_SUMMARY"
