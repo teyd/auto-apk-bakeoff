@@ -69,15 +69,19 @@ def main():
     if len(sys.argv) != 5:
         fail("usage: fetch_apkmirror.py <app-page-url> <version> <arch> <outdir>")
     app_url, version, arch, outdir = sys.argv[1:]
-    status, text, _ = page(app_url)
+    status, text, d = page(app_url)
     if status != 200:
         fail(f"app page: HTTP {status}")
 
-    # Learn the app's path and release-slug prefixes from its own release links.
-    found = re.findall(r'href="(/apk/[^"/]+/[^"/]+/)([^"/]+)-release/"', text)
+    # Learn the release-slug prefixes from this app's own release links only;
+    # the page also links other apps in its sidebars.
+    app_path = urllib.parse.urlparse(d.get("url") or app_url).path
+    if not app_path.endswith("/"):
+        app_path += "/"
+    found = [(p, s) for p, s in re.findall(r'href="(/apk/[^"/]+/[^"/]+/)([^"/]+)-release/"', text) if p == app_path]
     if not found:
-        fail("app page: no release links")
-    paths = {p for p, _ in found}
+        fail(f"app page: no release links under {app_path}")
+    paths = [app_path]
     prefixes = []
     for _, s in found:
         m = re.match(r"^(.*?-)(?=\d)", s)
