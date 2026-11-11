@@ -34,13 +34,26 @@ def page(url):
     time.sleep(PAUSE if log["pages"] else 0)
     body = json.dumps({"url": url, "solveEmbeddedCaptchas": False}).encode()
     req = urllib.request.Request(TRAWL + "/scrape", data=body, headers={"Content-Type": "application/json"})
+    t = time.time()
     try:
         with urllib.request.urlopen(req, timeout=180) as r:
             d = json.load(r)
     except urllib.error.HTTPError as e:
-        d = json.loads(e.read() or b"{}")
+        raw = e.read() or b"{}"
+        try:
+            d = json.loads(raw)
+        except ValueError:
+            d = {"trawl_http": e.code, "raw": raw[:300].decode(errors="replace")}
+        d.setdefault("trawl_http", e.code)
+    except Exception as e:  # timeout, connection refused
+        d = {"exception": repr(e)[:300]}
     log["pages"] += 1
     log["tiers"].append(d.get("tier"))
+    entry = {"url": url.replace(BASE, ""), "status": d.get("statusCode"), "tier": d.get("tier"),
+             "s": round(time.time() - t, 1)}
+    if d.get("statusCode") != 200:
+        entry["detail"] = {k: v for k, v in d.items() if k not in ("html", "body", "cookies", "responseHeaders")}
+    log.setdefault("trace", []).append(entry)
     return d.get("statusCode"), d.get("html") or "", d
 
 

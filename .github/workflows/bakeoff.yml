@@ -57,10 +57,3 @@ jobs:
           SOURCES: ${{ inputs.sources || 'apkpure apkmirror' }}
           HOST_LABEL: gha
         run: ./scripts/run.sh
-
-      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
-        if: always()
-        with:
-          name: results-${{ github.run_id }}
-          path: results/
-          if-no-files-found: error

@@ -133,5 +133,10 @@ jq -c '.[]' "$HERE/apps.json" | while read -r app; do
   done
 done
 
+if [ -n "${CI:-}" ]; then
+  # Results go to the log (artifact storage may be full).
+  echo "::group::results jsonl"; cat "$OUT"; echo "::endgroup::"
+  $trawl_started && { echo "::group::trawl log"; docker logs --tail 200 bakeoff-trawl 2>&1; echo "::endgroup::"; }
+fi
 $trawl_started && docker rm -f bakeoff-trawl >/dev/null
 echo "results: $OUT" >&2
