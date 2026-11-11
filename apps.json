@@ -1,0 +1,22 @@
+[
+  { "id": "instagram", "package": "com.instagram.android", "patches": "crimera/piko",
+    "apkmirror": "https://www.apkmirror.com/apk/instagram/instagram-instagram/", "pin": null },
+  { "id": "x", "package": "com.twitter.android", "patches": "crimera/piko-newx",
+    "apkmirror": "https://www.apkmirror.com/apk/x-corp/twitter/",
+    "pin": "0fd9a0cfb07b65950997b4eaebdc53931392391aa406538a3b04073bc2ce2fe9" },
+  { "id": "gboard", "package": "com.google.android.inputmethod.latin", "patches": "jasonwu1994/Gboard-patches",
+    "apkmirror": "https://www.apkmirror.com/apk/google-inc/gboard/", "pin": null },
+  { "id": "discord", "package": "com.discord", "patches": "VenusIsJaded/Venus-Patches",
+    "apkmirror": "https://www.apkmirror.com/apk/discord/discord-chat-for-gamers/", "pin": null },
+  { "id": "tiktok", "package": "com.zhiliaoapp.musically", "patches": "SysAdminDoc/HushFeed",
+    "apkmirror": "https://www.apkmirror.com/apk/tiktok-pte-ltd/tik-tok-including-musical-ly/", "pin": null },
+  { "id": "reddit", "package": "com.reddit.frontpage", "patches": "MorpheApp/morphe-patches",
+    "apkmirror": "https://www.apkmirror.com/apk/redditinc/reddit/",
+    "pin": "970b91143813b4c9d5f3634f672c9fcaa5621b4efaaedafd6c235cbbb869736f" },
+  { "id": "twitch", "package": "tv.twitch.android.app", "patches": "jordanwoodson/lurk-morphe-patches",
+    "apkmirror": "https://www.apkmirror.com/apk/twitch-interactive-inc/twitch/",
+    "pin": "1338f9b049893cc70b78432a177582f90bd4bc6296ea4ed35bcc7df59687ac53" },
+  { "id": "youtube", "package": "com.google.android.youtube", "patches": "MorpheApp/morphe-patches",
+    "apkmirror": "https://www.apkmirror.com/apk/google-inc/youtube/",
+    "pin": "3d7a1223019aa39d9ea0e3436ab7c0896bfb4fb679f4de5fe7c23f326c8f994a" }
+]

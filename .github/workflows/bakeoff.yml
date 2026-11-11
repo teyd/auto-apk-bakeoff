@@ -1,0 +1,66 @@
+name: bakeoff
+
+on:
+  workflow_dispatch:
+    inputs:
+      only:
+        description: "App ids separated by spaces (empty = all)"
+        required: false
+        default: ""
+      sources:
+        description: "Sources to try"
+        required: false
+        default: "apkpure apkmirror"
+  schedule:
+    # Once a day; disable the workflow after three runs.
+    - cron: "17 9 * * *"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: bakeoff
+  cancel-in-progress: false
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-java@77dd5b2ce225ea11469928ac317850245a74ae78 # v6.2.0
+        with:
+          distribution: temurin
+          java-version: "21"
+
+      - name: Tools
+        run: |
+          t=$(date +%s.%N)
+          mkdir -p "$RUNNER_TEMP/bin"
+          curl -fsSL -o "$RUNNER_TEMP/bin/apkeep" \
+            https://github.com/EFForg/apkeep/releases/download/1.1.0/apkeep-x86_64-unknown-linux-gnu
+          echo "badd7ad9fa7d2f32abe01eaf33b7ff086361a95bbc000a33bf44b630d4bf2140  $RUNNER_TEMP/bin/apkeep" | sha256sum -c
+          chmod +x "$RUNNER_TEMP/bin/apkeep"
+          echo "$RUNNER_TEMP/bin" >> "$GITHUB_PATH"
+          bt=$(ls -d "$ANDROID_HOME"/build-tools/* | sort -V | tail -1)
+          echo "$bt" >> "$GITHUB_PATH"
+          echo "build-tools: $bt"
+          echo "apkeep setup: $(awk -v a="$t" -v b="$(date +%s.%N)" 'BEGIN{printf "%.1f", b-a}')s"
+
+      - name: Bake-off
+        env:
+          GH_TOKEN: ${{ github.token }}
+          ONLY: ${{ inputs.only }}
+          SOURCES: ${{ inputs.sources || 'apkpure apkmirror' }}
+          HOST_LABEL: gha
+        run: ./scripts/run.sh
+
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        if: always()
+        with:
+          name: results-${{ github.run_id }}
+          path: results/
+          if-no-files-found: error
