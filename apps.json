@@ -1,7 +1,7 @@
 [
   {"id": "instagram", "package": "com.instagram.android", "patches": "crimera/piko", "apkmirror": "https://www.apkmirror.com/apk/instagram/instagram-instagram/", "pin": "5f3e50f435583c9ae626302a71f7340044087a7e2c60adacfc254205a993e305"},
   {"id": "x", "package": "com.twitter.android", "patches": "crimera/piko-newx", "apkmirror": "https://www.apkmirror.com/apk/x-corp/twitter/", "pin": "0fd9a0cfb07b65950997b4eaebdc53931392391aa406538a3b04073bc2ce2fe9"},
-  {"id": "gboard", "package": "com.google.android.inputmethod.latin", "patches": "jasonwu1994/Gboard-patches", "apkmirror": "https://www.apkmirror.com/apk/google-inc/gboard/", "pin": null},
+  {"id": "gboard", "package": "com.google.android.inputmethod.latin", "patches": "jasonwu1994/Gboard-patches", "apkmirror": "https://www.apkmirror.com/apk/google-inc/gboard/", "pin": "f0fd6c5b410f25cb25c3b53346c8972fae30f8ee7411df910480ad6b2d60db83"},
   {"id": "discord", "package": "com.discord", "patches": "VenusIsJaded/Venus-Patches", "apkmirror": "https://www.apkmirror.com/apk/discord/discord-chat-for-gamers/", "pin": "3c39d23cf9367849a5c699395647fe0e5bfea5a1f1f40d8c717ddc70f8bfa113"},
   {"id": "tiktok", "package": "com.zhiliaoapp.musically", "patches": "SysAdminDoc/HushFeed", "apkmirror": "https://www.apkmirror.com/apk/tiktok-pte-ltd/tik-tok-including-musical-ly/", "pin": "9041803e91bcb814b4b4399fb5c85a91640b755e5e8ba76813814bf4cf2ab5ba"},
   {"id": "reddit", "package": "com.reddit.frontpage", "patches": "MorpheApp/morphe-patches", "apkmirror": "https://www.apkmirror.com/apk/redditinc/reddit/", "pin": "970b91143813b4c9d5f3634f672c9fcaa5621b4efaaedafd6c235cbbb869736f"},
